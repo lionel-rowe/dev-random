@@ -1,0 +1,35 @@
+{
+	"lock": false,
+	"exports": {
+	},
+	"tasks": {
+		"test": "deno test -R"
+	},
+	"imports": {
+		"@std/http": "jsr:@std/http@^1.0.16",
+		"@std/path": "jsr:@std/path@^1.0.9",
+		"@std/random/": "https://raw.githubusercontent.com/lionel-rowe/std/065fada46d5cf2cba16a94d2545687f9ddda7f05/random/",
+		"marked": "npm:marked@^15.0.12",
+		"marked-alert": "npm:marked-alert@^2.1.2",
+		"string-dedent": "https://esm.sh/string-dedent@3.0.1"
+	},
+	"fmt": {
+		"semiColons": false,
+		"useTabs": true,
+		"lineWidth": 120,
+		"indentWidth": 4,
+		"singleQuote": true,
+		"proseWrap": "preserve",
+		"exclude": ["README.md"]
+	},
+	"compilerOptions": { "strict": true },
+	"lint": {
+		"exclude": [],
+		"rules": {
+			"tags": ["recommended"],
+			"exclude": [],
+			"include": []
+		}
+	},
+	"exclude": []
+}
