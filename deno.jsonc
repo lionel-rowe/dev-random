@@ -27,7 +27,7 @@
 		"indentWidth": 4,
 		"singleQuote": true,
 		"proseWrap": "preserve",
-		"exclude": []
+		"exclude": ["README.md"]
 	},
 	"compilerOptions": { "strict": true },
 	"lint": {

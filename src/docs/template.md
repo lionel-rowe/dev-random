@@ -8,7 +8,7 @@ The seeded PRNG uses the PCG32 algorithm.
 
 ### Example
 
-<pre><code>GET <a href="{{path}}">{{path}}</a></code></pre>
+<pre><code>GET <a target="_blank" href="{{href}}">{{path}}</a></code></pre>
 
 ### Parameters
 

@@ -2,6 +2,7 @@ import dedent from 'string-dedent'
 import { fromFileUrl } from '@std/path/from-file-url'
 import { populateReadme, templateUrl } from './populate.ts'
 import { debounce } from '@std/async/debounce'
+import { BASE_URL } from '../config.ts'
 
 const readmePath = './README.md'
 
@@ -17,7 +18,7 @@ const updateOnChange = debounce(async () => {
 			* Script: ${relative(import.meta.url)}
 		-->
 
-		${await populateReadme(16219948517617292328n)}
+		${await populateReadme({ seed: 16219948517617292328n, baseUrl: BASE_URL })}
 	`
 
 	if (currentContent !== newContent) {

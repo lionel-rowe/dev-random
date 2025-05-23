@@ -4,25 +4,27 @@ import { numberTypeShortNames } from '../numberTypes.ts'
 
 export const templateUrl = new URL(import.meta.resolve('./template.md'))
 
-export async function populateReadme(seed: bigint) {
+export async function populateReadme({ seed, baseUrl }: { seed: bigint; baseUrl: string }) {
 	const params = {
 		type: 'f64',
 		count: 5,
 		seed: String(seed),
 	} as const
 
-	const url = new URL('/numbers', 'https://null')
+	const url = new URL('/numbers', baseUrl)
 	url.search = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)])).toString()
 
-	const path = url.href.slice(url.origin.length)
+	const href = url.href
+	const path = href.slice(url.origin.length)
 	const numberTypeList = listFmt.format(numberTypeShortNames.map((x) => `\`${x}\``))
 
 	const res = getOutput(params)
 
 	const content = populateTemplate(await Deno.readTextFile(templateUrl), {
+		href,
 		path,
 		numberTypeList,
-		output: JSON.stringify(res, null, '\t'),
+		output: JSON.stringify(res, null, 4),
 		maxCount: numFmt.format(MAX_COUNT),
 	})
 
