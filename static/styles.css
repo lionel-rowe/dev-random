@@ -16,7 +16,7 @@ body {
 }
 
 main {
-	max-width: 800px;
+	max-width: 100ch;
 	margin: 0 auto;
 	margin-block: 2rem;
 	padding-inline: 0.3rem;

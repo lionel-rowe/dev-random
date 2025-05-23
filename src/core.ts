@@ -2,19 +2,35 @@ import { Pcg32 } from '@std/random/_pcg32.ts'
 import type { ByteGenerator } from '@std/random/_types.ts'
 import { nextFloat64 } from '@std/random/number_types.ts'
 import { numberTypeNameMap, NumberTypeShortName, NumericTypeOf } from './numberTypes.ts'
+import { CryptoPrng } from './crypto.ts'
+
+type Prng = Pcg32 | CryptoPrng
+type SerializedPrng = `pcg32_${bigint}_${bigint}` | null
+
+export type Output = {
+	type: NumberTypeShortName
+	values: number[] | `${bigint}`[]
+	start: SerializedPrng | null
+	resume: SerializedPrng | null
+}
 
 /** @throws {InvalidSeedError} */
 export function getOutput(
 	{ seed, type, count }: { seed: string | null; type: NumberTypeShortName; count: number },
-): { values: number[] | string[]; resume: string | null } {
+): Output {
 	const prng = seedToPrng(seed)
+	const start = serialize(prng)
 
 	const numbers = nextNumbers(prng.getRandomValues.bind(prng), type, count)
-	const values = typeof numbers[0] === 'bigint' ? numbers.map(String) : numbers as number[]
+	const values = typeof numbers[0] === 'bigint' ? numbers.map(String) as `${bigint}`[] : numbers as number[]
 
-	const resume = prng instanceof Pcg32 ? `pcg32_${prng.state}_${prng.inc}` : null
+	const resume = serialize(prng)
 
-	return { values, resume }
+	return { type, values, start, resume }
+}
+
+function serialize(prng: Prng): SerializedPrng {
+	return prng instanceof Pcg32 ? `pcg32_${prng.state}_${prng.inc}` : null
 }
 
 export function nextNumbers<T extends NumberTypeShortName>(
@@ -48,8 +64,8 @@ export class InvalidSeedError extends Error {
 }
 
 /** @throws {InvalidSeedError} */
-export function seedToPrng(seed: string | null): { getRandomValues: ByteGenerator } {
-	if (seed == null) return { getRandomValues: cryptoGetRandomValues }
+export function seedToPrng(seed: string | null): Prng {
+	if (seed == null) return CryptoPrng.instance
 
 	if (isPositiveIntString(seed)) {
 		return Pcg32.seedFromUint64(BigInt(seed))
@@ -63,16 +79,4 @@ export function seedToPrng(seed: string | null): { getRandomValues: ByteGenerato
 
 export function randomSeed() {
 	return crypto.getRandomValues(new BigUint64Array(1))[0]!
-}
-
-function cryptoGetRandomValues(b: Uint8Array): Uint8Array {
-	// 0x10000 == 65,536.
-	// See https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues#exceptions
-	const max = Math.floor(0x10000 / b.BYTES_PER_ELEMENT)
-
-	for (let i = 0; i < b.length; i += max) {
-		crypto.getRandomValues(b.subarray(i, i + max))
-	}
-
-	return b
 }

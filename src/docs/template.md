@@ -23,9 +23,9 @@ The seeded PRNG uses the PCG32 algorithm.
   - If set to the string `none`, a non-seeded PRNG will be used.
   - If omitted or empty, a random seed will be generated, and the request will be redirected to the URL with the
     seed specified.
-  - If set to `pcg32_<state>_<inc>`, the `state` and `inc` values will be used to resume the PRNG. This is
-    the format returned in the `resume` field of the response and can be used to "paginate" through the random
-    number stream.
+  - If set to `pcg32_<state>_<inc>`, the `state` and `inc` values will be used to initialize the PRNG. This is
+    the format returned in the `start` and `resume` fields of the response and can be used to "paginate" through the
+    random number stream.
 
 ## Response
 
@@ -37,6 +37,8 @@ The seeded PRNG uses the PCG32 algorithm.
 
 ### Fields
 
+- **`type`**: The type of numbers generated. This will be the same as the `type` parameter in the request.
 - **`values`**: An array of random numbers generated.
+- **`start`**: State of the PRNG at the start of generation. This will be `null` if a non-seeded PRNG was used.
 - **`resume`**: Resumable state that can be used to generate more numbers. This will be `null` if a non-seeded
   PRNG was used.

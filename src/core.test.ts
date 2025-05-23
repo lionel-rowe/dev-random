@@ -67,25 +67,29 @@ Deno.test(getOutput.name, async (t) => {
 			const STATE_10 = 14233933908465127448n
 
 			await t.step('from halfway', () => {
-				const { values, resume } = getOutput({ ...params, count: 5 })
-				assertEquals(values, expected.slice(0, 5))
-				assertEquals(resume, `pcg32_${STATE_5}_${INC}`)
+				const first = getOutput({ ...params, count: 5 })
+				assertEquals(first.values, expected.slice(0, 5))
+				assertEquals(first.start, `pcg32_${STATE_0}_${INC}`)
+				assertEquals(first.resume, `pcg32_${STATE_5}_${INC}`)
 
-				const rest = getOutput({ ...params, count: 5, seed: resume })
-				assertEquals(rest.values, expected.slice(5))
-				assertEquals(rest.resume, `pcg32_${STATE_10}_${INC}`)
+				const second = getOutput({ ...params, count: 5, seed: first.resume })
+				assertEquals(second.values, expected.slice(5))
+				assertEquals(second.start, first.resume)
+				assertEquals(second.resume, `pcg32_${STATE_10}_${INC}`)
 
-				assertEquals([...values, ...rest.values], expected)
+				assertEquals([...first.values, ...second.values], expected)
 			})
 
 			await t.step('from zero', () => {
-				const { values, resume } = getOutput({ ...params, count: 0 })
-				assertEquals(values, [])
-				assertEquals(resume, `pcg32_${STATE_0}_${INC}`)
+				const first = getOutput({ ...params, count: 0 })
+				assertEquals(first.values, [])
+				assertEquals(first.start, `pcg32_${STATE_0}_${INC}`)
+				assertEquals(first.resume, first.start)
 
-				const rest = getOutput({ ...params, seed: resume })
-				assertEquals(rest.values, expected)
-				assertEquals(rest.resume, `pcg32_${STATE_10}_${INC}`)
+				const second = getOutput({ ...params, seed: first.resume })
+				assertEquals(second.values, expected)
+				assertEquals(second.start, first.resume)
+				assertEquals(second.resume, `pcg32_${STATE_10}_${INC}`)
 			})
 		})
 	})
