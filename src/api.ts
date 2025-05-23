@@ -1,28 +1,29 @@
 import { STATUS_CODE, STATUS_TEXT, type StatusCode } from '@std/http/status'
-import { Pcg32 } from '@std/random/_pcg32.ts'
-import { asNumberTypeName, numberTypes } from './numberTypes.ts'
+import { isNumberTypeShortName, numberTypeShortNames } from './numberTypes.ts'
 import { listFmt, MAX_COUNT, numFmt } from './config.ts'
-import { isPositiveIntString, nextNumbers, randomSeed, seedToPrng } from './core.ts'
+import { getOutput, InvalidSeedError, isPositiveIntString, randomSeed } from './core.ts'
+import { DOM_EXCEPTION_NAME, isDomException } from '@li/is-dom-exception'
 
 export function numbers(req: Request): Response {
 	const url = new URL(req.url)
 	const params = url.searchParams
-	const _seed = params.get('seed')
 
-	if (_seed === '') {
+	const type = params.get('type')
+	const _seed = params.get('seed')
+	const _count = params.get('count')
+
+	if (!_seed) {
 		params.set('seed', String(randomSeed()))
 		return Response.redirect(url, STATUS_CODE.TemporaryRedirect)
 	}
 
-	const _type = params.get('type')
-	const _count = params.get('count')
+	const seed = _seed === 'none' ? null : _seed
 
-	if (_type == null) {
+	if (type == null) {
 		return err(STATUS_CODE.BadRequest, '`type` is required')
 	}
-	const type = asNumberTypeName(_type)
-	if (type == null) {
-		return err(STATUS_CODE.BadRequest, `\`type\` must be one of ${listFmt.format(numberTypes)}`)
+	if (!isNumberTypeShortName(type)) {
+		return err(STATUS_CODE.BadRequest, `\`type\` must be one of ${listFmt.format(numberTypeShortNames)}`)
 	}
 
 	if (_count == null) {
@@ -36,14 +37,18 @@ export function numbers(req: Request): Response {
 		return err(STATUS_CODE.BadRequest, `\`count\` cannot exceed ${numFmt.format(MAX_COUNT)}`)
 	}
 
-	const prng = seedToPrng(_seed)
-
-	const numbers = nextNumbers(prng.getRandomValues.bind(prng), type, count)
-	const values = typeof numbers[0] === 'bigint' ? numbers.map(String) : numbers
-
-	const resume = prng instanceof Pcg32 ? `pcg32_${prng.state}_${prng.inc}` : null
-
-	return Response.json({ values, resume })
+	try {
+		return Response.json(getOutput({ seed, type, count }))
+	} catch (e) {
+		if (e instanceof InvalidSeedError) {
+			return err(STATUS_CODE.BadRequest, e.message)
+		} else if (isDomException(e, DOM_EXCEPTION_NAME.QuotaExceededError)) {
+			// `crypto.getRandomValues` may throw this error due to oversized typed array.
+			// However, this should never happen in practice, as we've wrapped the function to iterate in such cases.
+			return err(STATUS_CODE.InternalServerError, e.message)
+		}
+		throw e
+	}
 }
 
 export function err(status: StatusCode, message?: string) {

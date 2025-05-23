@@ -16,26 +16,35 @@
  */
 export const numberTypes = [
 	'Float64',
-	'Int8',
-	'Int16',
-	'Int32',
 	'Uint8',
-	'BigInt64',
 	'Uint16',
 	'Uint32',
 	'BigUint64',
+	'Int8',
+	'Int16',
+	'Int32',
+	'BigInt64',
 ] as const
 
 export type NumberTypeName = typeof numberTypes[number]
-export type NumericType<T extends NumberTypeName> = T extends `Big${string}` ? bigint : number
+export type NumericTypeOf<T extends NumberTypeShortName> = T extends `${'i' | 'u'}${64}` ? bigint : number
 
-function normalizeNumberTypeName(x: string) {
-	return x.replace(/^Big/, '').replace(/^([a-z])[a-z]*/i, '$1').toLowerCase()
+function shortenNumberTypeName(x: NumberTypeName): NumberTypeShortName {
+	return x.replace(/^Big/, '').replace(/^([a-z])[a-z]*/i, '$1').toLowerCase() as NumberTypeShortName
 }
 
-// f64, i8, i16, i32, i64, u8, u16, u32, u64
-export const numberTypesNormalized: readonly string[] = numberTypes.map(normalizeNumberTypeName)
-export function asNumberTypeName(type: string): NumberTypeName | null {
-	const idx = numberTypesNormalized.findIndex((x) => type === x)
-	return idx === -1 ? null : numberTypes[idx]!
+type NumberTypeShortNameOf<T> = T extends `${'Big' | ''}Int${infer U extends number}` ? `i${U}`
+	: T extends `${'Big' | ''}Uint${infer U extends number}` ? `u${U}`
+	: T extends `Float${infer U extends number}` ? `f${U}`
+	: never
+export type NumberTypeShortName = NumberTypeShortNameOf<NumberTypeName>
+
+export const numberTypeNameMap: ReadonlyMap<NumberTypeShortName, NumberTypeName> = new Map(numberTypes.map((x) => [
+	shortenNumberTypeName(x),
+	x,
+]))
+export const numberTypeShortNames = [...numberTypeNameMap.keys()] as const
+export function isNumberTypeShortName(type: string): type is NumberTypeShortName {
+	const map: ReadonlyMap<string, unknown> = numberTypeNameMap
+	return map.has(type)
 }
