@@ -1,10 +1,22 @@
-import { getOutput, InvalidSeedError, nextNumbers } from './core.ts'
-import { assert, assertAlmostEquals, assertEquals, assertThrows } from '@std/assert'
+import { generateNumbers, getNumWordsPerElement, getResults, InvalidSeedError, seedToPrng } from './core.ts'
+import type { Links, SerializedPrng } from './core.ts'
+import { assert, assertAlmostEquals, assertEquals, assertInstanceOf, assertThrows } from '@std/assert'
 import { Pcg32 } from '@std/random/_pcg32.ts'
 import type { NumberTypeShortName } from './numberTypes.ts'
 import { DOM_EXCEPTION_NAME } from '@li/is-dom-exception'
 
-Deno.test(getOutput.name, async (t) => {
+function assertLinks(actual: Links | null, expected: Record<keyof Links, SerializedPrng>) {
+	assert(actual != null, 'Expected links not to be `null`')
+
+	for (const key of ['self', 'next', 'prev'] as const) {
+		const qps = new URLSearchParams(actual[key])
+		assertEquals(qps.get('seed'), expected[key], `mismatch for ${key}`)
+	}
+
+	return expected
+}
+
+Deno.test(getResults.name, async (t) => {
 	await t.step('no seed', () => {
 		const params = {
 			type: 'f64',
@@ -12,11 +24,11 @@ Deno.test(getOutput.name, async (t) => {
 			seed: null,
 		} as const
 
-		const output = getOutput(params)
+		const output = getResults(params)
 
 		assertEquals(output.values.length, 5)
 		assert(output.values.every((v) => typeof v === 'number'))
-		assertEquals(output.resume, null)
+		assertEquals(output._links, null)
 	})
 
 	await t.step('no seed with large count', () => {
@@ -30,12 +42,12 @@ Deno.test(getOutput.name, async (t) => {
 		const exception = assertThrows(() => crypto.getRandomValues(new BigUint64Array(count)), DOMException)
 		assertEquals(exception.name, DOM_EXCEPTION_NAME.QuotaExceededError)
 
-		const output = getOutput(params)
+		const output = getResults(params)
 
 		assertEquals(output.values.length, count)
 		assertAlmostEquals(new Set<unknown>(output.values).size, count, 10)
 		assert(output.values.every((v) => typeof v === 'string'))
-		assertEquals(output.resume, null)
+		assertEquals(output._links, null)
 	})
 
 	await t.step('invalid seed', () => {
@@ -45,7 +57,7 @@ Deno.test(getOutput.name, async (t) => {
 			seed: '<invalid>',
 		} as const
 
-		assertThrows(() => getOutput(params), InvalidSeedError, 'Invalid seed: <invalid>')
+		assertThrows(() => getResults(params), InvalidSeedError, 'Invalid seed: <invalid>')
 	})
 
 	await t.step('u8', async (t) => {
@@ -57,46 +69,76 @@ Deno.test(getOutput.name, async (t) => {
 
 		const expected = [3, 215, 211, 62, 155, 133, 142, 14, 192, 62]
 
-		const actual = getOutput(params)
+		const actual = getResults(params)
 		assertEquals(actual.values, expected)
 
-		await t.step('resume', async (t) => {
-			const INC = 12496553309261721735n
-			const STATE_0 = 18178507722946115774n
-			const STATE_5 = 11980307007958233361n
-			const STATE_10 = 14233933908465127448n
+		await t.step('pagination', async (t) => {
+			const INC = 'ad6cad067346f087'
+			const STATE_NEG_10 = '97f41772ea4fb9b4'
+			const STATE_NEG_5 = '2f72931632877e2f'
+			const STATE_0 = 'fc470875cce5f8be'
+			const STATE_5 = 'a64299bfd5793111'
+			const STATE_10 = 'c5891779a2739018'
 
 			await t.step('from halfway', () => {
-				const first = getOutput({ ...params, count: 5 })
+				const first = getResults({ ...params, count: 5 })
 				assertEquals(first.values, expected.slice(0, 5))
-				assertEquals(first.start, `pcg32_${STATE_0}_${INC}`)
-				assertEquals(first.resume, `pcg32_${STATE_5}_${INC}`)
 
-				const second = getOutput({ ...params, count: 5, seed: first.resume })
+				const { next } = assertLinks(
+					first._links,
+					{
+						prev: `pcg32_${STATE_NEG_5}_${INC}`,
+						self: `pcg32_${STATE_0}_${INC}`,
+						next: `pcg32_${STATE_5}_${INC}`,
+					},
+				)
+
+				const second = getResults({ ...params, count: 5, seed: next })
 				assertEquals(second.values, expected.slice(5))
-				assertEquals(second.start, first.resume)
-				assertEquals(second.resume, `pcg32_${STATE_10}_${INC}`)
+
+				assertLinks(
+					second._links,
+					{
+						prev: `pcg32_${STATE_0}_${INC}`,
+						self: `pcg32_${STATE_5}_${INC}`,
+						next: `pcg32_${STATE_10}_${INC}`,
+					},
+				)
 
 				assertEquals([...first.values, ...second.values], expected)
 			})
 
 			await t.step('from zero', () => {
-				const first = getOutput({ ...params, count: 0 })
+				const first = getResults({ ...params, count: 0 })
 				assertEquals(first.values, [])
-				assertEquals(first.start, `pcg32_${STATE_0}_${INC}`)
-				assertEquals(first.resume, first.start)
 
-				const second = getOutput({ ...params, seed: first.resume })
+				const { next } = assertLinks(
+					first._links,
+					{
+						prev: `pcg32_${STATE_0}_${INC}`,
+						self: `pcg32_${STATE_0}_${INC}`,
+						next: `pcg32_${STATE_0}_${INC}`,
+					},
+				)
+
+				const second = getResults({ ...params, seed: next })
 				assertEquals(second.values, expected)
-				assertEquals(second.start, first.resume)
-				assertEquals(second.resume, `pcg32_${STATE_10}_${INC}`)
+
+				assertLinks(
+					second._links,
+					{
+						prev: `pcg32_${STATE_NEG_10}_${INC}`,
+						self: `pcg32_${STATE_0}_${INC}`,
+						next: `pcg32_${STATE_10}_${INC}`,
+					},
+				)
 			})
 		})
 	})
 })
 
-Deno.test(nextNumbers.name, async (t) => {
-	const tests: [NumberTypeShortName, (bigint | number)[]][] = [
+Deno.test(generateNumbers.name, async (t) => {
+	const tests: [NumberTypeShortName, number[] | bigint[]][] = [
 		['u32', [
 			298703107,
 			4236525527,
@@ -137,9 +179,72 @@ Deno.test(nextNumbers.name, async (t) => {
 
 	for (const [type, expected] of tests) {
 		await t.step(type, () => {
-			const prng = Pcg32.seedFromUint64(0n)
-			const actual = nextNumbers(prng.getRandomValues.bind(prng), type, 10)
+			const prng = new Pcg32(0n)
+			const actual = generateNumbers(prng, type, 10)
 			assertEquals(actual, expected)
 		})
 	}
+})
+
+Deno.test(getNumWordsPerElement.name, () => {
+	assertEquals(getNumWordsPerElement('Uint8', 1), 1)
+	assertEquals(getNumWordsPerElement('Uint8', 2), 1)
+	assertEquals(getNumWordsPerElement('Uint8', 4), 1)
+	assertEquals(getNumWordsPerElement('Uint8', 8), 1)
+
+	assertEquals(getNumWordsPerElement('Uint16', 1), 2)
+	assertEquals(getNumWordsPerElement('Uint16', 2), 1)
+	assertEquals(getNumWordsPerElement('Uint16', 4), 1)
+	assertEquals(getNumWordsPerElement('Uint16', 8), 1)
+
+	assertEquals(getNumWordsPerElement('Uint32', 1), 4)
+	assertEquals(getNumWordsPerElement('Uint32', 2), 2)
+	assertEquals(getNumWordsPerElement('Uint32', 4), 1)
+	assertEquals(getNumWordsPerElement('Uint32', 8), 1)
+
+	assertEquals(getNumWordsPerElement('Float64', 1), 8)
+	assertEquals(getNumWordsPerElement('Float64', 2), 4)
+	assertEquals(getNumWordsPerElement('Float64', 4), 2)
+	assertEquals(getNumWordsPerElement('Float64', 8), 1)
+})
+
+Deno.test(seedToPrng.name, async (t) => {
+	await t.step('invalid seeds', () => {
+		assertThrows(() => seedToPrng(''), InvalidSeedError, 'Invalid seed: ')
+		assertThrows(() => seedToPrng('<invalid>'), InvalidSeedError, 'Invalid seed: <invalid>')
+		assertThrows(() => seedToPrng(`pcg32_${'f'.repeat(15)}_${'f'.repeat(16)}`), InvalidSeedError)
+		assertThrows(() => seedToPrng(`pcg32_${'f'.repeat(16)}_${'f'.repeat(15)}`), InvalidSeedError)
+		assertThrows(() => seedToPrng(`pcg32_${'f'.repeat(17)}_${'f'.repeat(16)}`), InvalidSeedError)
+		assertThrows(() => seedToPrng(`pcg32_${'f'.repeat(16)}_${'f'.repeat(17)}`), InvalidSeedError)
+	})
+
+	await t.step('scalar u64 seed', () => {
+		const prng = seedToPrng('0')
+		assertInstanceOf(prng, Pcg32)
+		assertEquals(prng.state, 18178507722946115774n)
+		assertEquals(prng.increment, 12496553309261721735n)
+	})
+
+	await t.step('resumable state', async (t) => {
+		await t.step('min', () => {
+			const prng = seedToPrng(`pcg32_${'0'.repeat(16)}_${'1'.padStart(16, '0')}`)
+			assertInstanceOf(prng, Pcg32)
+			assertEquals(prng.state, 0n)
+			assertEquals(prng.increment, 1n)
+		})
+
+		await t.step('max', () => {
+			const prng = seedToPrng(`pcg32_${'f'.repeat(16)}_${'f'.repeat(16)}`)
+			assertInstanceOf(prng, Pcg32)
+			assertEquals(prng.state, 2n ** 64n - 1n)
+			assertEquals(prng.increment, 2n ** 64n - 1n)
+		})
+
+		await t.step('odd value of `increment` gets coerced to even', () => {
+			const prng = seedToPrng(`pcg32_${'0'.repeat(16)}_${'6'.padStart(16, '0')}`)
+			assertInstanceOf(prng, Pcg32)
+			assertEquals(prng.state, 0n)
+			assertEquals(prng.increment, 7n)
+		})
+	})
 })

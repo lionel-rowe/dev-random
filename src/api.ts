@@ -1,19 +1,19 @@
 import { STATUS_CODE, STATUS_TEXT, type StatusCode } from '@std/http/status'
 import { isNumberTypeShortName, numberTypeShortNames } from './numberTypes.ts'
 import { listFmt, MAX_COUNT, numFmt } from './config.ts'
-import { getOutput, InvalidSeedError, isPositiveIntString, randomSeed } from './core.ts'
+import { getResults, InvalidSeedError, isPositiveIntString, randomSeed } from './core.ts'
 import { DOM_EXCEPTION_NAME, isDomException } from '@li/is-dom-exception'
 
 export function numbers(req: Request): Response {
 	const url = new URL(req.url)
-	const params = url.searchParams
+	const { searchParams } = url
 
-	const type = params.get('type')
-	const _seed = params.get('seed')
-	const _count = params.get('count')
+	const type = searchParams.get('type')
+	const _seed = searchParams.get('seed')
+	const _count = searchParams.get('count')
 
 	if (!_seed) {
-		params.set('seed', String(randomSeed()))
+		searchParams.set('seed', String(randomSeed()))
 		return Response.redirect(url, STATUS_CODE.TemporaryRedirect)
 	}
 
@@ -38,7 +38,7 @@ export function numbers(req: Request): Response {
 	}
 
 	try {
-		return Response.json(getOutput({ seed, type, count }))
+		return Response.json(getResults({ seed, type, count, searchParams }))
 	} catch (e) {
 		if (e instanceof InvalidSeedError) {
 			return err(STATUS_CODE.BadRequest, e.message)

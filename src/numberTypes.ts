@@ -39,12 +39,15 @@ type NumberTypeShortNameOf<T> = T extends `${'Big' | ''}Int${infer U extends num
 	: never
 export type NumberTypeShortName = NumberTypeShortNameOf<NumberTypeName>
 
-export const numberTypeNameMap: ReadonlyMap<NumberTypeShortName, NumberTypeName> = new Map(numberTypes.map((x) => [
+export const numberTypeNameMap = new Map(numberTypes.map((x) => [
 	shortenNumberTypeName(x),
 	x,
-]))
+])) as {
+	get(type: NumberTypeShortName): NumberTypeName
+	has(type: string): boolean
+	keys(): MapIterator<NumberTypeShortName>
+}
 export const numberTypeShortNames = [...numberTypeNameMap.keys()] as const
 export function isNumberTypeShortName(type: string): type is NumberTypeShortName {
-	const map: ReadonlyMap<string, unknown> = numberTypeNameMap
-	return map.has(type)
+	return numberTypeNameMap.has(type)
 }

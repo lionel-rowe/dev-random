@@ -1,5 +1,5 @@
 import { listFmt, MAX_COUNT, numFmt } from '../config.ts'
-import { getOutput } from '../core.ts'
+import { getResults } from '../core.ts'
 import { numberTypeShortNames } from '../numberTypes.ts'
 
 export const templateUrl = new URL(import.meta.resolve('./template.md'))
@@ -18,13 +18,13 @@ export async function populateReadme({ seed, baseUrl }: { seed: bigint; baseUrl:
 	const path = href.slice(url.origin.length)
 	const numberTypeList = listFmt.format(numberTypeShortNames.map((x) => `\`${x}\``))
 
-	const res = getOutput(params)
+	const results = getResults(params)
 
 	const content = populateTemplate(await Deno.readTextFile(templateUrl), {
 		href,
 		path,
 		numberTypeList,
-		output: JSON.stringify(res, null, 4),
+		output: JSON.stringify(results, null, 4),
 		maxCount: numFmt.format(MAX_COUNT),
 	})
 
