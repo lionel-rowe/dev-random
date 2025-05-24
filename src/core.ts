@@ -122,8 +122,11 @@ export function seedToPrng(seed: string | null): Prng {
 
 	if (isPositiveIntString(seed)) {
 		return new Pcg32(BigInt(seed))
-	} else if (/^pcg32_\p{AHex}{16}_\p{AHex}{16}$/u.test(seed)) {
+	} else if (/^pcg32_[0-9a-f]{16}_[0-9a-f]{16}$/.test(seed)) {
 		const [state, increment] = seed.split('_').slice(1).map((x) => BigInt(`0x${x}`))
+		if ((increment & 1n) === 0n) {
+			throw new InvalidSeedError(`Invalid increment: 0x${u64ToHex(increment)}. \`increment\` must be odd`)
+		}
 		return new Pcg32({ state, increment })
 	} else {
 		throw new InvalidSeedError(`Invalid seed: ${seed}`)

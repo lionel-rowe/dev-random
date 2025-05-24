@@ -240,11 +240,12 @@ Deno.test(seedToPrng.name, async (t) => {
 			assertEquals(prng.increment, 2n ** 64n - 1n)
 		})
 
-		await t.step('odd value of `increment` gets coerced to even', () => {
-			const prng = seedToPrng(`pcg32_${'0'.repeat(16)}_${'6'.padStart(16, '0')}`)
-			assertInstanceOf(prng, Pcg32)
-			assertEquals(prng.state, 0n)
-			assertEquals(prng.increment, 7n)
+		await t.step('odd value of `increment` is rejected', () => {
+			const err = assertThrows(
+				() => seedToPrng(`pcg32_${'0'.repeat(16)}_${'666'.padStart(16, '0')}`),
+				InvalidSeedError,
+			)
+			assertEquals(err.message, 'Invalid increment: 0x0000000000000666. `increment` must be odd')
 		})
 	})
 })
