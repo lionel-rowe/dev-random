@@ -1,4 +1,5 @@
-body {
+:root {
+	color-scheme: light dark;
 	font-family:
 		-apple-system,
 		BlinkMacSystemFont,
@@ -13,6 +14,42 @@ body {
 		sans-serif;
 	tab-size: 4;
 	overflow-wrap: break-word;
+	--background: white;
+	background: var(--background);
+}
+
+pre {
+	white-space: pre-wrap;
+	background: var(--background);
+	padding: 0.6rem 1rem;
+	border-radius: 0.5rem;
+	--shadow-color: #0003;
+	filter: drop-shadow(2px 4px 6px var(--shadow-color));
+}
+
+a {
+	--color: LinkText;
+	color: var(--color);
+}
+
+a:hover {
+	color: hsl(from var(--color, currentColor) h calc(s * 2) calc(l * 0.5));
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background: #121212;
+	}
+	a:hover {
+		color: hsl(from var(--color, currentColor) h s calc(l * 1.1));
+	}
+	pre {
+		--shadow-color: #0006;
+	}
+}
+
+h2, h3, h4, h5, h6 {
+	font-weight: 500;
 }
 
 .container {
@@ -22,20 +59,14 @@ body {
 	padding-inline: 0.3rem;
 }
 
-pre {
-	white-space: pre-wrap;
-}
-
-a {
-	--color: blue;
-	color: var(--color);
-}
-
 .markdown-alert {
 	margin-block: 0.6em;
 	border-inline-start: 0.25em solid var(--alert-color);
 	padding: 0.3em 1em;
-	background: color-mix(in srgb, var(--alert-color), #fff 90%);
+	background: color-mix(in srgb, var(--alert-color), var(--background) 90%);
+}
+.octicon {
+	fill: currentColor;
 }
 .markdown-alert > :first-child {
 	margin-block-start: 0;
@@ -91,10 +122,21 @@ a {
 	color: lightslategray;
 }
 
-.token a {
-	--color: inherit;
+@media (prefers-color-scheme: dark) {
+	.token.string {
+		color: tomato;
+	}
+	.token.number {
+		color: deepskyblue;
+	}
+	.token.string-property {
+		color: goldenrod;
+	}
+	.token.punctuation, .token.operator {
+		color: slategray;
+	}
 }
 
-a:hover {
-	color: hsl(from var(--color, currentColor) h calc(s * 2) calc(l * 0.5));
+.token a {
+	--color: inherit;
 }

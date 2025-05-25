@@ -7,17 +7,11 @@
 
 # `dev-random`
 
-Generate pseudo-random numbers of various numeric types, optionally using a seeded PRNG.
-
-The seeded PRNG uses the PCG32 algorithm.
+Generate pseudo-random numbers of various numeric types, optionally using a seeded PRNG using the PCG32 algorithm.
 
 ## Request
 
-### Example
-
 <pre><code>GET <a href="https:&#x2F;&#x2F;dev-random.deno.dev&#x2F;numbers?type&#x3D;f64&amp;count&#x3D;10&amp;seed&#x3D;16219948517617292328">&#x2F;numbers?type&#x3D;f64&amp;count&#x3D;10&amp;seed&#x3D;16219948517617292328</a></code></pre>
-
-### Parameters
 
 - **`type`**: The type of numbers to generate. Must be one of `f64`, `u8`, `u16`, `u32`, `u64`, `i8`, `i16`, `i32`, or `i64`.
   > [!NOTE]
@@ -34,8 +28,6 @@ The seeded PRNG uses the PCG32 algorithm.
   - If omitted or empty, a random PRNG `state` and `inc` will be generated, and the request will be redirected.
 
 ## Response
-
-### Example
 
 ```json
 {
@@ -59,8 +51,6 @@ The seeded PRNG uses the PCG32 algorithm.
     }
 }
 ```
-
-### Fields
 
 - **`type`**: The type of numbers generated. This will be the same as the `type` parameter in the request.
 - **`values`**: An array of random numbers generated. For `u64` and `i64`, these will be returned as strings to avoid

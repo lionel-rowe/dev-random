@@ -1,16 +1,10 @@
 # `dev-random`
 
-Generate pseudo-random numbers of various numeric types, optionally using a seeded PRNG.
-
-The seeded PRNG uses the PCG32 algorithm.
+Generate pseudo-random numbers of various numeric types, optionally using a seeded PRNG using the PCG32 algorithm.
 
 ## Request
 
-### Example
-
 <pre><code>GET <a href="{{href}}">{{path}}</a></code></pre>
-
-### Parameters
 
 - **`type`**: The type of numbers to generate. Must be one of {{{numberTypeList}}}.
   > [!NOTE]
@@ -28,13 +22,9 @@ The seeded PRNG uses the PCG32 algorithm.
 
 ## Response
 
-### Example
-
 ```json
 {{{results}}}
 ```
-
-### Fields
 
 - **`type`**: The type of numbers generated. This will be the same as the `type` parameter in the request.
 - **`values`**: An array of random numbers generated. For `u64` and `i64`, these will be returned as strings to avoid
