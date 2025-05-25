@@ -8,11 +8,11 @@ The seeded PRNG uses the PCG32 algorithm.
 
 ### Example
 
-<pre><code>GET <a target="_blank" href="{{href}}">{{path}}</a></code></pre>
+<pre><code>GET <a href="{{href}}">{{path}}</a></code></pre>
 
 ### Parameters
 
-- **`type`**: The type of numbers to generate. Must be one of {{numberTypeList}}.
+- **`type`**: The type of numbers to generate. Must be one of {{{numberTypeList}}}.
   > [!NOTE]
   > For `u64` and `i64`, the numbers will be returned as strings to avoid losing accuracy when parsing from JSON.
 
@@ -31,7 +31,7 @@ The seeded PRNG uses the PCG32 algorithm.
 ### Example
 
 ```json
-{{output}}
+{{{output}}}
 ```
 
 ### Fields

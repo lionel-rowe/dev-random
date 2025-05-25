@@ -8,7 +8,7 @@ import { DOM_EXCEPTION_NAME } from '@li/is-dom-exception'
 function assertLinks(actual: Links | null, expected: Record<keyof Links, SerializedPrng>) {
 	assert(actual != null, 'Expected links not to be `null`')
 
-	for (const key of ['self', 'next', 'prev'] as const) {
+	for (const key of ['self', 'prev', 'next'] as const) {
 		const qps = new URLSearchParams(actual[key])
 		assertEquals(qps.get('seed'), expected[key], `mismatch for ${key}`)
 	}

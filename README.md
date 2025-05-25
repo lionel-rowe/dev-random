@@ -15,7 +15,7 @@ The seeded PRNG uses the PCG32 algorithm.
 
 ### Example
 
-<pre><code>GET <a target="_blank" href="https://dev-random.deno.dev/numbers?type=f64&count=5&seed=16219948517617292328">/numbers?type=f64&count=5&seed=16219948517617292328</a></code></pre>
+<pre><code>GET <a href="https://dev-random.deno.dev/numbers?type=f64&amp;count=5&amp;seed=16219948517617292328">/numbers?type=f64&amp;count=5&amp;seed=16219948517617292328</a></code></pre>
 
 ### Parameters
 
@@ -48,8 +48,8 @@ The seeded PRNG uses the PCG32 algorithm.
         0.3477782168254496
     ],
     "_links": {
-        "prev": "?type=f64&count=5&seed=pcg32_a985b65805165254_7ce20184f61636db",
         "self": "?type=f64&count=5&seed=pcg32_172a6a82087ba756_7ce20184f61636db",
+        "prev": "?type=f64&count=5&seed=pcg32_a985b65805165254_7ce20184f61636db",
         "next": "?type=f64&count=5&seed=pcg32_79d63b583cf98468_7ce20184f61636db"
     }
 }

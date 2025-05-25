@@ -56,7 +56,7 @@ export function getResults({ seed, type, count, searchParams = new URLSearchPara
 		const next = withSeedQueryParam(prng, searchParams)
 		const prev = withSeedQueryParam(advance.call(prng, -BigInt(count * numWordsPerElement * 2)), searchParams)
 
-		_links = { prev, self, next }
+		_links = { self, prev, next }
 	} else {
 		numbers = generateNumbers(prng, type, count)
 	}

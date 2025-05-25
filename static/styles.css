@@ -26,6 +26,11 @@ pre {
 	white-space: pre-wrap;
 }
 
+a {
+	--color: blue;
+	color: var(--color);
+}
+
 .markdown-alert {
 	margin-block: 0.6em;
 	border-inline-start: 0.25em solid var(--alert-color);
@@ -64,4 +69,32 @@ pre {
 .markdown-alert p:not([class]) {
 	margin-block-start: 0.3rem;
 	font-size: 0.9rem;
+}
+
+.breadcrumbs {
+	list-style-type: none;
+	padding-inline-start: 0;
+	display: flex;
+	gap: 0.5em;
+}
+
+.token.string {
+	color: firebrick;
+}
+.token.number {
+	color: dodgerblue;
+}
+.token.string-property {
+	color: darkgoldenrod;
+}
+.token.punctuation, .token.operator {
+	color: lightslategray;
+}
+
+.token a {
+	--color: inherit;
+}
+
+a:hover {
+	color: hsl(from var(--color, currentColor) h calc(s * 2) calc(l * 0.5));
 }

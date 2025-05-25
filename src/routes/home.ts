@@ -6,7 +6,7 @@ import { populateLayout, populateReadme } from '../render.ts'
 export async function home(req: Request): Promise<Response> {
 	const readme = await populateReadme({ seed: randomU64(), baseUrl: new URL(req.url).origin })
 	const main = await marked.parse(readme)
-	const html = await populateLayout({ title: null, main })
+	const html = await populateLayout(req, { title: null, main })
 
 	return new Response(html, {
 		headers: {

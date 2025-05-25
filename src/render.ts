@@ -1,6 +1,7 @@
 import { listFmt, MAX_COUNT, numFmt, SITE_TITLE } from './config.ts'
 import { getResults } from './core.ts'
 import { numberTypeShortNames } from './numberTypes.ts'
+import { escape } from '@std/html/entities'
 
 export const templateUrl = new URL(import.meta.resolve('../src/routes/home.md'))
 
@@ -9,21 +10,37 @@ export function populateTemplate(
 	values: Record<string, string>,
 ): string {
 	const map = new Map<string, string>(Object.entries(values))
-
 	return template
-		.replaceAll(/\{\{(\w+)\}\}/g, (_, key) => {
+		.replaceAll(/\{\{(\{)?(\w+)\}?\}\}/g, (_, third, key) => {
 			const value = map.get(key)
 			if (value == null) {
 				throw new Error(`Missing value for key: ${key}`)
 			}
-			return value
+			return third ? value : escape(value)
 		})
 }
 
-export async function populateLayout({ title, main }: { title: string | null; main: string }): Promise<string> {
+function makeBreadcrumbs(url: URL): string {
+	const segments = ['Home', ...url.pathname.split('/').filter(Boolean)]
+	const breadcrumbs = segments.map((part, idx) => {
+		if (idx === segments.length - 1) return part
+
+		const href = '/' + segments.slice(1, idx + 1).join('/')
+		return `<a href="${href}">${part}</a>`
+	}).map((x) => `<li>${x}</li>`).join(' › ')
+	return `<ul class="breadcrumbs">${breadcrumbs}</ul>`
+}
+
+export async function populateLayout(
+	req: Request,
+	{ title, main }: { title: string | null; main: string },
+): Promise<string> {
+	const url = new URL(req.url)
+	const breadcrumbs = makeBreadcrumbs(url)
+
 	return populateTemplate(
 		await Deno.readTextFile('./src/routes/_layout.html'),
-		{ title: title == null ? SITE_TITLE : `${title} · ${SITE_TITLE}`, main },
+		{ title: title == null ? SITE_TITLE : `${title} · ${SITE_TITLE}`, main, breadcrumbs },
 	)
 }
 
