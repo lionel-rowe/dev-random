@@ -23,7 +23,7 @@ export type Links = {
 	next: string
 }
 
-export type Output = {
+export type Results = {
 	type: NumberTypeShortName
 	values: number[] | `${bigint}`[]
 	_links: Links | null
@@ -35,7 +35,7 @@ export function getResults({ seed, type, count, searchParams = new URLSearchPara
 	type: NumberTypeShortName
 	count: number
 	searchParams?: URLSearchParams
-}): Output {
+}): Results {
 	searchParams = new URLSearchParams(searchParams)
 	searchParams.set('type', type)
 	searchParams.set('count', String(count))
@@ -71,8 +71,12 @@ function withSeedQueryParam(prng: Pcg32, searchParams: URLSearchParams): string 
 	return `?${searchParams.toString()}`
 }
 
-function serialize(prng: Pcg32): SerializedPrng {
+export function serialize(prng: Pcg32): SerializedPrng {
 	return `pcg32_${u64ToHex(prng.state)}_${u64ToHex(prng.increment)}`
+}
+
+export function getRandomPcg32(): Pcg32 {
+	return new Pcg32({ state: randomU64(), increment: randomU64() | 1n })
 }
 
 function u64ToHex(value: bigint): string {
@@ -133,6 +137,6 @@ export function seedToPrng(seed: string | null): Prng {
 	}
 }
 
-export function randomSeed() {
+export function randomU64() {
 	return crypto.getRandomValues(new BigUint64Array(1))[0]!
 }

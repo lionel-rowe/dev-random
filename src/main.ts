@@ -1,7 +1,7 @@
 import { STATUS_CODE } from '@std/http/status'
 import { normalize } from '@std/path'
-import { home } from './html.ts'
-import { err, numbers } from './api.ts'
+import { home } from './routes/home.ts'
+import { err, numbers } from './routes/numbers.ts'
 import { serveDir } from '@std/http/file-server'
 
 Deno.serve((req) => {

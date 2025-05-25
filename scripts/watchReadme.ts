@@ -1,8 +1,8 @@
 import dedent from 'string-dedent'
 import { fromFileUrl } from '@std/path/from-file-url'
-import { populateReadme, templateUrl } from './populate.ts'
+import { populateReadme, templateUrl } from '../src/render.ts'
 import { debounce } from '@std/async/debounce'
-import { BASE_URL } from '../config.ts'
+import { BASE_URL } from '../src/config.ts'
 
 const readmePath = './README.md'
 

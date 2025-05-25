@@ -1,7 +1,7 @@
 import { STATUS_CODE, STATUS_TEXT, type StatusCode } from '@std/http/status'
-import { isNumberTypeShortName, numberTypeShortNames } from './numberTypes.ts'
-import { listFmt, MAX_COUNT, numFmt } from './config.ts'
-import { getResults, InvalidSeedError, isPositiveIntString, randomSeed } from './core.ts'
+import { isNumberTypeShortName, numberTypeShortNames } from '../numberTypes.ts'
+import { listFmt, MAX_COUNT, numFmt } from '../config.ts'
+import { getRandomPcg32, getResults, InvalidSeedError, isPositiveIntString, type Results, serialize } from '../core.ts'
 import { DOM_EXCEPTION_NAME, isDomException } from '@li/is-dom-exception'
 
 export function numbers(req: Request): Response {
@@ -10,10 +10,12 @@ export function numbers(req: Request): Response {
 
 	const type = searchParams.get('type')
 	const _seed = searchParams.get('seed')
+	const _start = searchParams.get('start')
+
 	const _count = searchParams.get('count')
 
-	if (!_seed) {
-		searchParams.set('seed', String(randomSeed()))
+	if (!_seed && !_start) {
+		searchParams.set('start', serialize(getRandomPcg32()))
 		return Response.redirect(url, STATUS_CODE.TemporaryRedirect)
 	}
 
@@ -37,8 +39,9 @@ export function numbers(req: Request): Response {
 		return err(STATUS_CODE.BadRequest, `\`count\` cannot exceed ${numFmt.format(MAX_COUNT)}`)
 	}
 
+	let results: Results
 	try {
-		return Response.json(getResults({ seed, type, count, searchParams }))
+		results = getResults({ seed, type, count, searchParams })
 	} catch (e) {
 		if (e instanceof InvalidSeedError) {
 			return err(STATUS_CODE.BadRequest, e.message)
@@ -49,6 +52,8 @@ export function numbers(req: Request): Response {
 		}
 		throw e
 	}
+
+	return Response.json(results)
 }
 
 export function err(status: StatusCode, message?: string) {
