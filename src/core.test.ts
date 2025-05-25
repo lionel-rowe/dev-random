@@ -4,11 +4,14 @@ import { assert, assertAlmostEquals, assertEquals, assertInstanceOf, assertThrow
 import { Pcg32 } from '@std/random/_pcg32.ts'
 import type { NumberTypeShortName } from './numberTypes.ts'
 import { DOM_EXCEPTION_NAME } from '@li/is-dom-exception'
+import { BASE_URL } from './config.ts'
+
+const url = new URL('/numbers', BASE_URL)
 
 function assertLinks(actual: Links | null, expected: Record<keyof Links, SerializedPrng>) {
 	assert(actual != null, 'Expected links not to be `null`')
 
-	for (const key of ['self', 'prev', 'next'] as const) {
+	for (const key of ['prev', 'self', 'next'] as const) {
 		const qps = new URLSearchParams(actual[key])
 		assertEquals(qps.get('seed'), expected[key], `mismatch for ${key}`)
 	}
@@ -19,6 +22,7 @@ function assertLinks(actual: Links | null, expected: Record<keyof Links, Seriali
 Deno.test(getResults.name, async (t) => {
 	await t.step('no seed', () => {
 		const params = {
+			url,
 			type: 'f64',
 			count: 5,
 			seed: null,
@@ -34,6 +38,7 @@ Deno.test(getResults.name, async (t) => {
 	await t.step('no seed with large count', () => {
 		const count = 25_000
 		const params = {
+			url,
 			type: 'u64',
 			count,
 			seed: null,
@@ -52,6 +57,7 @@ Deno.test(getResults.name, async (t) => {
 
 	await t.step('invalid seed', () => {
 		const params = {
+			url,
 			type: 'f64',
 			count: 5,
 			seed: '<invalid>',
@@ -62,6 +68,7 @@ Deno.test(getResults.name, async (t) => {
 
 	await t.step('u8', async (t) => {
 		const params = {
+			url,
 			type: 'u8',
 			count: 10,
 			seed: '0',

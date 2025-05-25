@@ -15,7 +15,7 @@ The seeded PRNG uses the PCG32 algorithm.
 
 ### Example
 
-<pre><code>GET <a href="https://dev-random.deno.dev/numbers?type=f64&amp;count=5&amp;seed=16219948517617292328">/numbers?type=f64&amp;count=5&amp;seed=16219948517617292328</a></code></pre>
+<pre><code>GET <a href="https:&#x2F;&#x2F;dev-random.deno.dev&#x2F;numbers?type&#x3D;f64&amp;count&#x3D;10&amp;seed&#x3D;16219948517617292328">&#x2F;numbers?type&#x3D;f64&amp;count&#x3D;10&amp;seed&#x3D;16219948517617292328</a></code></pre>
 
 ### Parameters
 
@@ -31,7 +31,7 @@ The seeded PRNG uses the PCG32 algorithm.
   - If set to `pcg32_<state>_<inc>`, the `state` and `inc` values will be used to initialize the PRNG. This is
     the format returned in the `seed` query param of the `_links` in the response and can be used to "paginate" through
     the random number stream.
-  - If omitted or empty, a random seed will be generated, and the request will be redirected to that seed.
+  - If omitted or empty, a random PRNG `state` and `inc` will be generated, and the request will be redirected.
 
 ## Response
 
@@ -45,12 +45,17 @@ The seeded PRNG uses the PCG32 algorithm.
         0.635679392131898,
         0.5647627715199439,
         0.623146481031364,
-        0.3477782168254496
+        0.3477782168254496,
+        0.6626080296222641,
+        0.6115504922422603,
+        0.6355977213980293,
+        0.002055225982191211,
+        0.9186824161743158
     ],
     "_links": {
-        "self": "?type=f64&count=5&seed=pcg32_172a6a82087ba756_7ce20184f61636db",
-        "prev": "?type=f64&count=5&seed=pcg32_a985b65805165254_7ce20184f61636db",
-        "next": "?type=f64&count=5&seed=pcg32_79d63b583cf98468_7ce20184f61636db"
+        "prev": "/numbers?type=f64&count=10&seed=pcg32_ec864be11c1128e2_7ce20184f61636db",
+        "self": "/numbers?type=f64&count=10&seed=pcg32_172a6a82087ba756_7ce20184f61636db",
+        "next": "/numbers?type=f64&count=10&seed=pcg32_6f70dd8c1cc32a0a_7ce20184f61636db"
     }
 }
 ```

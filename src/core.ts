@@ -30,13 +30,14 @@ export type Results = {
 }
 
 /** @throws {InvalidSeedError} */
-export function getResults({ seed, type, count, searchParams = new URLSearchParams() }: {
+export function getResults({ seed, type, count, url }: {
 	seed: string | null
 	type: NumberTypeShortName
 	count: number
-	searchParams?: URLSearchParams
+	url: URL
 }): Results {
-	searchParams = new URLSearchParams(searchParams)
+	url = new URL(url)
+	const { searchParams } = url
 	searchParams.set('type', type)
 	searchParams.set('count', String(count))
 
@@ -49,14 +50,14 @@ export function getResults({ seed, type, count, searchParams = new URLSearchPara
 		const wordSize = getWordSizeForPrng(prng)
 		const numWordsPerElement = getNumWordsPerElement(numberTypeNameMap.get(type), wordSize)
 
-		const self = withSeedQueryParam(prng, searchParams)
+		const self = withSeedQueryParam(prng, url)
 
 		numbers = generateNumbers(prng, type, count)
 
-		const next = withSeedQueryParam(prng, searchParams)
-		const prev = withSeedQueryParam(advance.call(prng, -BigInt(count * numWordsPerElement * 2)), searchParams)
+		const next = withSeedQueryParam(prng, url)
+		const prev = withSeedQueryParam(advance.call(prng, -BigInt(count * numWordsPerElement * 2)), url)
 
-		_links = { self, prev, next }
+		_links = { prev, self, next }
 	} else {
 		numbers = generateNumbers(prng, type, count)
 	}
@@ -66,9 +67,9 @@ export function getResults({ seed, type, count, searchParams = new URLSearchPara
 	return { type, values, _links }
 }
 
-function withSeedQueryParam(prng: Pcg32, searchParams: URLSearchParams): string {
-	searchParams.set('seed', serialize(prng))
-	return `?${searchParams.toString()}`
+function withSeedQueryParam(prng: Pcg32, url: URL): string {
+	url.searchParams.set('seed', serialize(prng))
+	return url.href.slice(url.origin.length)
 }
 
 export function serialize(prng: Pcg32): SerializedPrng {

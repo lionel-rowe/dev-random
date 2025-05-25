@@ -15,7 +15,7 @@ body {
 	overflow-wrap: break-word;
 }
 
-main {
+.container {
 	max-width: 100ch;
 	margin: 0 auto;
 	margin-block: 2rem;

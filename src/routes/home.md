@@ -24,14 +24,14 @@ The seeded PRNG uses the PCG32 algorithm.
   - If set to `pcg32_<state>_<inc>`, the `state` and `inc` values will be used to initialize the PRNG. This is
     the format returned in the `seed` query param of the `_links` in the response and can be used to "paginate" through
     the random number stream.
-  - If omitted or empty, a random seed will be generated, and the request will be redirected to that seed.
+  - If omitted or empty, a random PRNG `state` and `inc` will be generated, and the request will be redirected.
 
 ## Response
 
 ### Example
 
 ```json
-{{{output}}}
+{{{results}}}
 ```
 
 ### Fields

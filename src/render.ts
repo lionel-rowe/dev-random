@@ -1,23 +1,20 @@
 import { listFmt, MAX_COUNT, numFmt, SITE_TITLE } from './config.ts'
 import { getResults } from './core.ts'
 import { numberTypeShortNames } from './numberTypes.ts'
-import { escape } from '@std/html/entities'
+// @ts-types="@types/mustache"
+import Mustache from 'mustache'
 
 export const templateUrl = new URL(import.meta.resolve('../src/routes/home.md'))
 
-export function populateTemplate(
-	template: string,
-	values: Record<string, string>,
-): string {
-	const map = new Map<string, string>(Object.entries(values))
-	return template
-		.replaceAll(/\{\{(\{)?(\w+)\}?\}\}/g, (_, third, key) => {
-			const value = map.get(key)
-			if (value == null) {
-				throw new Error(`Missing value for key: ${key}`)
-			}
-			return third ? value : escape(value)
-		})
+export const populateTemplate: typeof Mustache.render = (template, values, ...args): string => {
+	const proxy = new Proxy(values, {
+		get(target, prop, receiver) {
+			if (!Reflect.has(target, prop)) throw new Error(`Missing value for key: ${String(prop)}`)
+			return Reflect.get(target, prop, receiver)
+		},
+	})
+
+	return Mustache.render(template, proxy, ...args)
 }
 
 function makeBreadcrumbs(url: URL): string {
@@ -45,26 +42,27 @@ export async function populateLayout(
 }
 
 export async function populateReadme({ seed, baseUrl }: { seed: bigint; baseUrl: string }) {
+	const url = new URL('/numbers', baseUrl)
+
 	const params = {
 		type: 'f64',
-		count: 5,
+		count: 10,
 		seed: String(seed),
 	} as const
 
-	const url = new URL('/numbers', baseUrl)
 	url.search = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)])).toString()
 
 	const href = url.href
 	const path = href.slice(url.origin.length)
 	const numberTypeList = listFmt.format(numberTypeShortNames.map((x) => `\`${x}\``))
 
-	const results = getResults(params)
+	const results = getResults({ url, ...params })
 
 	const content = populateTemplate(await Deno.readTextFile(templateUrl), {
 		href,
 		path,
 		numberTypeList,
-		output: JSON.stringify(results, null, 4),
+		results: JSON.stringify(results, null, 4),
 		maxCount: numFmt.format(MAX_COUNT),
 	})
 

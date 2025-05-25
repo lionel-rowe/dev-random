@@ -16,11 +16,13 @@
 		"@std/media-types": "jsr:@std/media-types@^1.1.0",
 		"@std/path": "jsr:@std/path@^1.0.9",
 		"@std/random/": "https://raw.githubusercontent.com/lionel-rowe/std/ca10c0ee/random/",
+		"@types/mustache": "npm:@types/mustache@^4.2.6",
 		"@types/prismjs": "npm:@types/prismjs@^1.26.5",
 		"marked": "npm:marked@^15.0.12",
 		"marked-alert": "npm:marked-alert@^2.1.2",
 		"marked-highlight": "npm:marked-highlight@^2.2.1",
 		"marked-smartypants": "npm:marked-smartypants@^1.1.9",
+		"mustache": "npm:mustache@^4.2.0",
 		"prismjs": "npm:prismjs@^1.30.0",
 		"string-dedent": "https://esm.sh/string-dedent@3.0.1"
 	},

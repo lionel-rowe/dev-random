@@ -4,6 +4,7 @@ import { markedSmartypants } from 'marked-smartypants'
 import { markedHighlight } from 'marked-highlight'
 // @ts-types="@types/prismjs"
 import Prism from 'prismjs'
+import { escape } from '@std/html'
 
 const langMap = new Map([
 	['js', 'javascript'],
@@ -48,12 +49,12 @@ function handleString(t: Prism.Token): string {
 
 function addLinkIfUrlLike(string: string): string {
 	if (!/^".+"$/.test(string)) {
-		return string
+		return escape(string)
 	}
 
-	const inner = string.slice(1, -1)
-	if (!/(?<!\s)\?(?!\s)/.test(inner)) {
-		return string
+	const inner = escape(string.slice(1, -1))
+	if (!/^(?:\S*\?\S+|\/\S+|https?:\/\/\S+)$/.test(inner)) {
+		return `"${inner}"`
 	}
 
 	try {

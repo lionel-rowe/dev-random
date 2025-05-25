@@ -1,4 +1,4 @@
-import { STATUS_CODE, STATUS_TEXT, type StatusCode } from '@std/http/status'
+import { isRedirectStatus, STATUS_CODE, STATUS_TEXT, type StatusCode } from '@std/http/status'
 import { isNumberTypeShortName, numberTypeShortNames } from '../numberTypes.ts'
 import { listFmt, MAX_COUNT, numFmt } from '../config.ts'
 import { getRandomPcg32, getResults, InvalidSeedError, isPositiveIntString, type Results, serialize } from '../core.ts'
@@ -14,12 +14,11 @@ export const numbers = jsonOrHtml((req: Request): Response => {
 
 	const type = searchParams.get('type')
 	const _seed = searchParams.get('seed')
-	const _start = searchParams.get('start')
 
 	const _count = searchParams.get('count')
 
-	if (!_seed && !_start) {
-		searchParams.set('start', serialize(getRandomPcg32()))
+	if (!_seed) {
+		searchParams.set('seed', serialize(getRandomPcg32()))
 		return Response.redirect(url, STATUS_CODE.TemporaryRedirect)
 	}
 
@@ -45,7 +44,7 @@ export const numbers = jsonOrHtml((req: Request): Response => {
 
 	let results: Results
 	try {
-		results = getResults({ seed, type, count, searchParams })
+		results = getResults({ seed, type, count, url })
 	} catch (e) {
 		if (e instanceof InvalidSeedError) {
 			return err(STATUS_CODE.BadRequest, e.message)
@@ -70,20 +69,48 @@ export function err(status: StatusCode, message?: string) {
 
 function jsonOrHtml(fn: (req: Request) => Response | Promise<Response>) {
 	return async (req: Request): Promise<Response> => {
+		const { searchParams } = new URL(req.url)
+		const override = searchParams.get('format')
 		const accept = accepts(req, 'application/json', 'text/html')
-		console.log(`Accept: ${req.headers.get('accept')}, Resolved: ${accept}`)
 		const res = await fn(req)
-		if (accept === 'text/html') {
-			const results = JSON.stringify(await res.json(), null, 4)
-			const content = populateTemplate(await Deno.readTextFile('./src/routes/numbers.md'), { results })
-			const main = await marked.parse(content)
-			const html = await populateLayout(req, { title: 'Results', main })
+		const ct = accepts(res, 'application/json', 'text/html')
 
-			return new Response(html, {
-				headers: {
-					'content-type': contentType('html'),
-				},
-			})
+		const rerenderAsHtml = isRedirectStatus(res.status) || override === 'json'
+			? false
+			: override === 'html'
+			? true
+			: (accept === 'text/html' && ct === 'application/json')
+
+		if (rerenderAsHtml) {
+			try {
+				const form = Object.fromEntries(searchParams.entries())
+				const types = numberTypeShortNames.map((type) => ({
+					type,
+					selected: type === form.type,
+				}))
+
+				const results: Results = await res.json()
+
+				const { prev, next } = results._links ?? {}
+
+				const content = populateTemplate(await Deno.readTextFile('./src/routes/numbers.md'), {
+					results: JSON.stringify(results, null, 4),
+					form,
+					types,
+					prev,
+					next,
+				})
+				const main = await marked.parse(content)
+				const html = await populateLayout(req, { title: 'Playground', main })
+
+				return new Response(html, {
+					headers: {
+						'content-type': contentType('html'),
+					},
+				})
+			} catch (e) {
+				console.error(e)
+			}
 		}
 
 		return res
