@@ -17,7 +17,20 @@
 		Seed
 		<input name="seed" value="{{form.seed}}">
 	</label>
+	<label>
+		Format
+		<select name="format">
+			<option>html</option>
+			<option>json</option>
+		</select>
+	</label>
 	<button type="submit">Go</button>
+	<script>
+		document.currentScript.closest('form').addEventListener('submit', (e) => {
+			const f = e.currentTarget.querySelector('[name=format]')
+			if (f.value === 'html') f.removeAttribute('name')
+		})
+	</script>
 </form>
 
 ```json

@@ -99,6 +99,7 @@ function jsonOrHtml(fn: (req: Request) => Response | Promise<Response>) {
 					types,
 					prev,
 					next,
+					// format: form.format,
 				})
 				const main = await marked.parse(content)
 				const html = await populateLayout(req, { title: 'Playground', main })

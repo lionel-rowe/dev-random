@@ -27,6 +27,9 @@ Generate pseudo-random numbers of various numeric types, optionally using a seed
     the random number stream.
   - If omitted or empty, a random PRNG `state` and `inc` will be generated, and the request will be redirected.
 
+- **`format`**: Optional. Coerces the format of the response to `html` or `json`. If omitted, the request's `Accept`
+  header will be used to determine the format.
+
 ## Response
 
 ```json
