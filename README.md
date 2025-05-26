@@ -48,9 +48,9 @@ Generate pseudo-random numbers of various numeric types, optionally using a seed
         0.9186824161743158
     ],
     "_links": {
-        "prev": "/numbers?type=f64&count=10&seed=pcg32_ec864be11c1128e2_7ce20184f61636db",
-        "self": "/numbers?type=f64&count=10&seed=pcg32_172a6a82087ba756_7ce20184f61636db",
-        "next": "/numbers?type=f64&count=10&seed=pcg32_6f70dd8c1cc32a0a_7ce20184f61636db"
+        "prev": "?type=f64&count=10&seed=pcg32_ec864be11c1128e2_7ce20184f61636db",
+        "self": "?type=f64&count=10&seed=pcg32_172a6a82087ba756_7ce20184f61636db",
+        "next": "?type=f64&count=10&seed=pcg32_6f70dd8c1cc32a0a_7ce20184f61636db"
     }
 }
 ```

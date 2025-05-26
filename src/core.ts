@@ -69,7 +69,7 @@ export function getResults({ seed, type, count, url }: {
 
 function withSeedQueryParam(prng: Pcg32, url: URL): string {
 	url.searchParams.set('seed', serialize(prng))
-	return url.href.slice(url.origin.length)
+	return url.search
 }
 
 export function serialize(prng: Pcg32): SerializedPrng {

@@ -1,3 +1,7 @@
+* {
+	box-sizing: border-box;
+}
+
 :root {
 	color-scheme: light dark;
 	font-family:
@@ -16,6 +20,14 @@
 	overflow-wrap: break-word;
 	--background: white;
 	background: var(--background);
+
+	@media (prefers-color-scheme: dark) {
+		--background: #121212;
+	}
+}
+
+h2, h3, h4, h5, h6 {
+	font-weight: 500;
 }
 
 pre {
@@ -25,31 +37,23 @@ pre {
 	border-radius: 0.5rem;
 	--shadow-color: #0003;
 	filter: drop-shadow(2px 4px 6px var(--shadow-color));
+
+	@media (prefers-color-scheme: dark) {
+		--shadow-color: #0006;
+	}
 }
 
 a {
 	--color: LinkText;
 	color: var(--color);
-}
 
-a:hover {
-	color: hsl(from var(--color, currentColor) h calc(s * 2) calc(l * 0.5));
-}
+	&:hover {
+		color: hsl(from var(--color, currentColor) h calc(s * 2) calc(l * 0.5));
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #121212;
+		@media (prefers-color-scheme: dark) {
+			color: hsl(from var(--color, currentColor) h s calc(l * 1.1));
+		}
 	}
-	a:hover {
-		color: hsl(from var(--color, currentColor) h s calc(l * 1.1));
-	}
-	pre {
-		--shadow-color: #0006;
-	}
-}
-
-h2, h3, h4, h5, h6 {
-	font-weight: 500;
 }
 
 .container {
@@ -59,84 +63,111 @@ h2, h3, h4, h5, h6 {
 	padding-inline: 0.3rem;
 }
 
-.markdown-alert {
-	margin-block: 0.6em;
-	border-inline-start: 0.25em solid var(--alert-color);
-	padding: 0.3em 1em;
-	background: color-mix(in srgb, var(--alert-color), var(--background) 90%);
-}
-.octicon {
-	fill: currentColor;
-}
-.markdown-alert > :first-child {
-	margin-block-start: 0;
-}
-.markdown-alert > :last-child {
-	margin-block-end: 0;
-}
-.markdown-alert .markdown-alert-title {
-	display: flex;
-	align-items: center;
-	gap: 0.5em;
-	font-weight: bold;
-	color: var(--alert-color);
-	margin: 0;
-}
-.markdown-alert-note {
-	--alert-color: dodgerblue;
-}
-.markdown-alert-tip {
-	--alert-color: forestgreen;
-}
-.markdown-alert-important {
-	--alert-color: rebeccapurple;
-}
-.markdown-alert-warning {
-	--alert-color: darkorange;
-}
-.markdown-alert-caution {
-	--alert-color: crimson;
-}
-.markdown-alert p:not([class]) {
-	margin-block-start: 0.3rem;
-	font-size: 0.9rem;
-}
-
 .breadcrumbs {
 	list-style-type: none;
 	padding-inline-start: 0;
 	display: flex;
 	gap: 0.5em;
-}
 
-.token.string {
-	color: firebrick;
-}
-.token.number {
-	color: dodgerblue;
-}
-.token.string-property {
-	color: darkgoldenrod;
-}
-.token.punctuation, .token.operator {
-	color: lightslategray;
-}
-
-@media (prefers-color-scheme: dark) {
-	.token.string {
-		color: tomato;
-	}
-	.token.number {
-		color: deepskyblue;
-	}
-	.token.string-property {
-		color: goldenrod;
-	}
-	.token.punctuation, .token.operator {
-		color: slategray;
+	.breadcrumb-delimiter {
+		opacity: 0.5;
 	}
 }
 
-.token a {
-	--color: inherit;
+.markdown-alert {
+	margin-block: 0.6em;
+	border-inline-start: 0.25em solid var(--alert-color);
+	padding: 0.3em 1em;
+	background: color-mix(in srgb, var(--alert-color), transparent 90%);
+
+	--note: dodgerblue;
+	--tip: forestgreen;
+	--important: rebeccapurple;
+	--warning: darkorange;
+	--caution: crimson;
+
+	&.markdown-alert-note {
+		--alert-color: var(--note);
+	}
+	&.markdown-alert-tip {
+		--alert-color: var(--tip);
+	}
+	&.markdown-alert-important {
+		--alert-color: var(--important);
+	}
+	&.markdown-alert-warning {
+		--alert-color: var(--warning);
+	}
+	&.markdown-alert-caution {
+		--alert-color: var(--caution);
+	}
+
+	.octicon {
+		fill: currentColor;
+	}
+	> :first-child {
+		margin-block-start: 0;
+	}
+	> :last-child {
+		margin-block-end: 0;
+	}
+	.markdown-alert-title {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		font-weight: bold;
+		color: var(--alert-color);
+		margin: 0;
+	}
+	p:not([class]) {
+		margin-block-start: 0.3rem;
+		font-size: 0.9rem;
+	}
+}
+
+.hl {
+	--string: firebrick;
+	--number: dodgerblue;
+	--string-property: darkgoldenrod;
+	--punctuation: lightslategray;
+	--operator: var(--punctuation);
+	--function: seagreen;
+	--keyword: rebeccapurple;
+
+	@media (prefers-color-scheme: dark) {
+		--string: tomato;
+		--number: deepskyblue;
+		--string-property: goldenrod;
+		--punctuation: slategray;
+		--function: greenyellow;
+		--keyword: plum;
+	}
+
+	.token {
+		&.string {
+			color: var(--string);
+		}
+		&.number {
+			color: var(--number);
+		}
+		&.string-property {
+			color: var(--string-property);
+		}
+		&.punctuation {
+			color: var(--punctuation);
+		}
+		&.operator {
+			color: var(--operator);
+		}
+		&.function {
+			color: var(--function);
+		}
+		&.keyword {
+			color: var(--keyword);
+		}
+
+		a {
+			--color: inherit;
+		}
+	}
 }

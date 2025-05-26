@@ -18,7 +18,7 @@ const updateOnChange = debounce(async () => {
 			* Script: ${relative(import.meta.url)}
 		-->
 
-		${await populateReadme({ seed: 16219948517617292328n, baseUrl: BASE_URL })}
+		${await populateReadme({ seed: 16219948517617292328n, baseUrl: BASE_URL, indent: 4 })}
 	`
 
 	if (currentContent !== newContent) {

@@ -91,16 +91,13 @@ function jsonOrHtml(fn: (req: Request) => Response | Promise<Response>) {
 
 				const results: Results = await res.json()
 
-				const { prev, next } = results._links ?? {}
-
 				const content = populateTemplate(await Deno.readTextFile('./src/routes/numbers.md'), {
-					results: JSON.stringify(results, null, 4),
+					results: JSON.stringify(results, null, '\t'),
 					form,
 					types,
-					prev,
-					next,
-					// format: form.format,
+					links: results._links,
 				})
+
 				const main = await marked.parse(content)
 				const html = await populateLayout(req, { title: 'Playground', main })
 

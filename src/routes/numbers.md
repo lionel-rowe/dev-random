@@ -20,22 +20,23 @@
 	<label>
 		Format
 		<select name="format">
-			<option>html</option>
+			<option value="">html</option>
 			<option>json</option>
 		</select>
 	</label>
 	<button type="submit">Go</button>
 	<script>
-		document.currentScript.closest('form').addEventListener('submit', (e) => {
-			const f = e.currentTarget.querySelector('[name=format]')
-			if (f.value === 'html') f.removeAttribute('name')
+		document.currentScript.closest('form').addEventListener('submit', function () {
+			const $format = this.querySelector('[name=format]')
+			if (!$format.value) $format.removeAttribute('name')
 		})
 	</script>
 </form>
+
+{{> _pagination}}
 
 ```json
 {{{results}}}
 ```
 
-{{#prev}}<a href="{{prev}}">‹ Prev</a>{{/prev}}
-{{#next}}<a href="{{next}}">Next ›</a>{{/next}}
+{{> _pagination}}
