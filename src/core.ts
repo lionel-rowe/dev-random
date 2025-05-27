@@ -1,10 +1,9 @@
-import { Pcg32 } from '@std/random/_pcg32.ts'
-import type { ByteGenerator } from '@std/random/_types.ts'
-import { nextFloat64 } from '@std/random/number_types.ts'
+import { Pcg32 } from './pcg32.ts'
+import type { RandomValueGenerator } from '@std/random/get_random_values_seeded.ts'
+import { nextFloat64 } from '@std/random/next_float_64.ts'
 import { NumberTypeName, numberTypeNameMap, NumberTypeShortName, NumericTypeOf } from './numberTypes.ts'
 import { CryptoPrng } from './crypto.ts'
 import { unreachable } from '@std/assert/unreachable'
-import { advance } from './advance.ts'
 
 type WordSize = 1 | 2 | 4 | 8 | 16
 type Prng = Pcg32 | CryptoPrng
@@ -55,7 +54,7 @@ export function getResults({ seed, type, count, url }: {
 		numbers = generateNumbers(prng, type, count)
 
 		const next = withSeedQueryParam(prng, url)
-		const prev = withSeedQueryParam(advance.call(prng, -BigInt(count * numWordsPerElement * 2)), url)
+		const prev = withSeedQueryParam(prng.advance(-BigInt(count * numWordsPerElement * 2)), url)
 
 		_links = { prev, self, next }
 	} else {
@@ -89,9 +88,9 @@ export function generateNumbers<T extends NumberTypeShortName>(
 	type: T,
 	count: number,
 ): NumericTypeOf<T>[] {
-	const byteGenerator: ByteGenerator = prng.getRandomValues.bind(prng)
+	const getRandomValues: RandomValueGenerator = prng.getRandomValues.bind(prng)
 	if (type === 'f64') {
-		return Array.from({ length: count }, () => nextFloat64(byteGenerator) as NumericTypeOf<T>)
+		return Array.from({ length: count }, () => nextFloat64(getRandomValues) as NumericTypeOf<T>)
 	}
 
 	const numberType = numberTypeNameMap.get(type)
@@ -100,7 +99,7 @@ export function generateNumbers<T extends NumberTypeShortName>(
 	const numWordsPerElement = getNumWordsPerElement(numberType, wordSize) * wordSize
 	const method = `get${numberType}` as const
 
-	const b = byteGenerator(new Uint8Array(numWordsPerElement * count))
+	const b = getRandomValues(new Uint8Array(numWordsPerElement * count))
 	const dv = new DataView(b.buffer)
 
 	return Array.from({ length: count }, (_, i) => {

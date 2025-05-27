@@ -46,7 +46,7 @@ export async function populateLayout(
 	)
 }
 
-export async function populateReadme(props: { seed: bigint; baseUrl: string, indent?: '\t' | 2 | 4 | 8 }) {
+export async function populateReadme(props: { seed: bigint; baseUrl: string; indent?: '\t' | 2 | 4 | 8 }) {
 	const { seed, baseUrl, indent = '\t' } = props
 	const url = new URL('/numbers', baseUrl)
 

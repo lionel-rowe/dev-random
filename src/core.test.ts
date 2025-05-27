@@ -1,7 +1,7 @@
 import { generateNumbers, getNumWordsPerElement, getResults, InvalidSeedError, seedToPrng } from './core.ts'
 import type { Links, SerializedPrng } from './core.ts'
 import { assert, assertAlmostEquals, assertEquals, assertInstanceOf, assertThrows } from '@std/assert'
-import { Pcg32 } from '@std/random/_pcg32.ts'
+import { Pcg32 } from './pcg32.ts'
 import type { NumberTypeShortName } from './numberTypes.ts'
 import { DOM_EXCEPTION_NAME } from '@li/is-dom-exception'
 import { BASE_URL } from './config.ts'
