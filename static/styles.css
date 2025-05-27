@@ -39,7 +39,7 @@ pre {
 	filter: drop-shadow(2px 4px 6px var(--shadow-color));
 
 	@media (prefers-color-scheme: dark) {
-		--shadow-color: #0006;
+		--shadow-color: #000f;
 	}
 }
 
