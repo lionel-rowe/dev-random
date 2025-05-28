@@ -68,9 +68,11 @@ a {
 	padding-inline-start: 0;
 	display: flex;
 	gap: 0.5em;
+	font-size: 0.9rem;
+	color: color-mix(in srgb, currentColor, transparent 30%);
 
 	.breadcrumb-delimiter {
-		opacity: 0.5;
+		opacity: 0.6;
 	}
 }
 

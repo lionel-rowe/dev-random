@@ -26,11 +26,17 @@ export function populateTemplate(template: string, values: object): string {
 function makeBreadcrumbs(url: URL) {
 	const segments = ['Home', ...url.pathname.split('/').filter(Boolean)]
 	return segments.map((part, idx) => {
+		part = capitalize(part)
 		if (idx === segments.length - 1) return { href: null, part }
 
 		const href = '/' + segments.slice(1, idx + 1).join('/')
 		return { href, part }
 	})
+}
+
+function capitalize(str: string): string {
+	const first = str[Symbol.iterator]().next().value ?? ''
+	return first.toUpperCase() + str.slice(first.length)
 }
 
 export async function populateLayout(

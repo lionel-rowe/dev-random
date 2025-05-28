@@ -1,7 +1,10 @@
 <ul class="breadcrumbs">
 	{{#breadcrumbs}}
-		{{#href}}<a href="{{href}}">{{/href}}
+		{{#href}}
+			<a href="{{href}}">{{part}}</a><span class="breadcrumb-delimiter">›</span>
+		{{/href}}
+		{{^href}}
 			{{part}}
-		{{#href}}</a><span class="breadcrumb-delimiter">›</span>{{/href}}
+		{{/href}}
 	{{/breadcrumbs}}
 </ul>
