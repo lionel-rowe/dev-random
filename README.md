@@ -22,7 +22,7 @@ Generate pseudo-random numbers of various numeric types, optionally using a seed
 - **`seed`**: The seed to use for the random number generator.
   - If set to a u64 integer, that will be used to seed the PRNG.
   - If set to the string `none`, a non-seeded PRNG will be used.
-  - If set to `pcg32_<state>_<inc>`, the `state` and `inc` values will be used to initialize the PRNG. This is
+  - If set to `pcg32-<state>-<inc>`, the `state` and `inc` values will be used to initialize the PRNG. This is
     the format returned in the `seed` query param of the `_links` in the response and can be used to "paginate" through
     the random number stream.
   - If omitted or empty, a random PRNG `state` and `inc` will be generated, and the request will be redirected.
@@ -48,9 +48,9 @@ Generate pseudo-random numbers of various numeric types, optionally using a seed
         0.9186824161743158
     ],
     "_links": {
-        "prev": "?type=f64&count=10&seed=pcg32_ec864be11c1128e2_7ce20184f61636db",
-        "self": "?type=f64&count=10&seed=pcg32_172a6a82087ba756_7ce20184f61636db",
-        "next": "?type=f64&count=10&seed=pcg32_6f70dd8c1cc32a0a_7ce20184f61636db"
+        "prev": "?type=f64&count=10&seed=pcg32-ec864be11c1128e2-7ce20184f61636db",
+        "self": "?type=f64&count=10&seed=pcg32-172a6a82087ba756-7ce20184f61636db",
+        "next": "?type=f64&count=10&seed=pcg32-6f70dd8c1cc32a0a-7ce20184f61636db"
     }
 }
 ```

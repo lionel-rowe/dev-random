@@ -15,7 +15,7 @@ Generate pseudo-random numbers of various numeric types, optionally using a seed
 - **`seed`**: The seed to use for the random number generator.
   - If set to a u64 integer, that will be used to seed the PRNG.
   - If set to the string `none`, a non-seeded PRNG will be used.
-  - If set to `pcg32_<state>_<inc>`, the `state` and `inc` values will be used to initialize the PRNG. This is
+  - If set to `pcg32-<state>-<inc>`, the `state` and `inc` values will be used to initialize the PRNG. This is
     the format returned in the `seed` query param of the `_links` in the response and can be used to "paginate" through
     the random number stream.
   - If omitted or empty, a random PRNG `state` and `inc` will be generated, and the request will be redirected.

@@ -1,7 +1,7 @@
 import { generateNumbers, getNumWordsPerElement, getResults, InvalidSeedError, seedToPrng } from './core.ts'
 import type { Links, SerializedPrng } from './core.ts'
 import { assert, assertAlmostEquals, assertEquals, assertInstanceOf, assertThrows } from '@std/assert'
-import { Pcg32 } from './pcg32.ts'
+import { Pcg32 } from '@std/random/_pcg32.ts'
 import type { NumberTypeShortName } from './numberTypes.ts'
 import { DOM_EXCEPTION_NAME } from '@li/is-dom-exception'
 import { BASE_URL } from './config.ts'
@@ -94,9 +94,9 @@ Deno.test(getResults.name, async (t) => {
 				const { next } = assertLinks(
 					first._links,
 					{
-						prev: `pcg32_${STATE_NEG_5}_${INC}`,
-						self: `pcg32_${STATE_0}_${INC}`,
-						next: `pcg32_${STATE_5}_${INC}`,
+						prev: `pcg32-${STATE_NEG_5}-${INC}`,
+						self: `pcg32-${STATE_0}-${INC}`,
+						next: `pcg32-${STATE_5}-${INC}`,
 					},
 				)
 
@@ -106,9 +106,9 @@ Deno.test(getResults.name, async (t) => {
 				assertLinks(
 					second._links,
 					{
-						prev: `pcg32_${STATE_0}_${INC}`,
-						self: `pcg32_${STATE_5}_${INC}`,
-						next: `pcg32_${STATE_10}_${INC}`,
+						prev: `pcg32-${STATE_0}-${INC}`,
+						self: `pcg32-${STATE_5}-${INC}`,
+						next: `pcg32-${STATE_10}-${INC}`,
 					},
 				)
 
@@ -122,9 +122,9 @@ Deno.test(getResults.name, async (t) => {
 				const { next } = assertLinks(
 					first._links,
 					{
-						prev: `pcg32_${STATE_0}_${INC}`,
-						self: `pcg32_${STATE_0}_${INC}`,
-						next: `pcg32_${STATE_0}_${INC}`,
+						prev: `pcg32-${STATE_0}-${INC}`,
+						self: `pcg32-${STATE_0}-${INC}`,
+						next: `pcg32-${STATE_0}-${INC}`,
 					},
 				)
 
@@ -134,9 +134,9 @@ Deno.test(getResults.name, async (t) => {
 				assertLinks(
 					second._links,
 					{
-						prev: `pcg32_${STATE_NEG_10}_${INC}`,
-						self: `pcg32_${STATE_0}_${INC}`,
-						next: `pcg32_${STATE_10}_${INC}`,
+						prev: `pcg32-${STATE_NEG_10}-${INC}`,
+						self: `pcg32-${STATE_0}-${INC}`,
+						next: `pcg32-${STATE_10}-${INC}`,
 					},
 				)
 			})
@@ -219,10 +219,10 @@ Deno.test(seedToPrng.name, async (t) => {
 	await t.step('invalid seeds', () => {
 		assertThrows(() => seedToPrng(''), InvalidSeedError, 'Invalid seed: ')
 		assertThrows(() => seedToPrng('<invalid>'), InvalidSeedError, 'Invalid seed: <invalid>')
-		assertThrows(() => seedToPrng(`pcg32_${'f'.repeat(15)}_${'f'.repeat(16)}`), InvalidSeedError)
-		assertThrows(() => seedToPrng(`pcg32_${'f'.repeat(16)}_${'f'.repeat(15)}`), InvalidSeedError)
-		assertThrows(() => seedToPrng(`pcg32_${'f'.repeat(17)}_${'f'.repeat(16)}`), InvalidSeedError)
-		assertThrows(() => seedToPrng(`pcg32_${'f'.repeat(16)}_${'f'.repeat(17)}`), InvalidSeedError)
+		assertThrows(() => seedToPrng(`pcg32-${'f'.repeat(15)}-${'f'.repeat(16)}`), InvalidSeedError)
+		assertThrows(() => seedToPrng(`pcg32-${'f'.repeat(16)}-${'f'.repeat(15)}`), InvalidSeedError)
+		assertThrows(() => seedToPrng(`pcg32-${'f'.repeat(17)}-${'f'.repeat(16)}`), InvalidSeedError)
+		assertThrows(() => seedToPrng(`pcg32-${'f'.repeat(16)}-${'f'.repeat(17)}`), InvalidSeedError)
 	})
 
 	await t.step('scalar u64 seed', () => {
@@ -234,14 +234,14 @@ Deno.test(seedToPrng.name, async (t) => {
 
 	await t.step('resumable state', async (t) => {
 		await t.step('min', () => {
-			const prng = seedToPrng(`pcg32_${'0'.repeat(16)}_${'1'.padStart(16, '0')}`)
+			const prng = seedToPrng(`pcg32-${'0'.repeat(16)}-${'1'.padStart(16, '0')}`)
 			assertInstanceOf(prng, Pcg32)
 			assertEquals(prng.state, 0n)
 			assertEquals(prng.increment, 1n)
 		})
 
 		await t.step('max', () => {
-			const prng = seedToPrng(`pcg32_${'f'.repeat(16)}_${'f'.repeat(16)}`)
+			const prng = seedToPrng(`pcg32-${'f'.repeat(16)}-${'f'.repeat(16)}`)
 			assertInstanceOf(prng, Pcg32)
 			assertEquals(prng.state, 2n ** 64n - 1n)
 			assertEquals(prng.increment, 2n ** 64n - 1n)
@@ -249,7 +249,7 @@ Deno.test(seedToPrng.name, async (t) => {
 
 		await t.step('odd value of `increment` is rejected', () => {
 			const err = assertThrows(
-				() => seedToPrng(`pcg32_${'0'.repeat(16)}_${'666'.padStart(16, '0')}`),
+				() => seedToPrng(`pcg32-${'0'.repeat(16)}-${'666'.padStart(16, '0')}`),
 				InvalidSeedError,
 			)
 			assertEquals(err.message, 'Invalid increment: 0x0000000000000666. `increment` must be odd')

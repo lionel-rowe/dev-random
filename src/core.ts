@@ -1,4 +1,4 @@
-import { Pcg32 } from './pcg32.ts'
+import { Pcg32 } from '@std/random/_pcg32.ts'
 import type { RandomValueGenerator } from '@std/random/get_random_values_seeded.ts'
 import { nextFloat64 } from '@std/random/next_float_64.ts'
 import { NumberTypeName, numberTypeNameMap, NumberTypeShortName, NumericTypeOf } from './numberTypes.ts'
@@ -7,7 +7,7 @@ import { unreachable } from '@std/assert/unreachable'
 
 type WordSize = 1 | 2 | 4 | 8 | 16
 type Prng = Pcg32 | CryptoPrng
-export type SerializedPrng = `pcg32_${string}_${string}`
+export type SerializedPrng = `pcg32-${string}-${string}`
 
 function getWordSizeForPrng(prng: Prng): WordSize {
 	if (prng instanceof Pcg32) return 4
@@ -72,7 +72,7 @@ function withSeedQueryParam(prng: Pcg32, url: URL): string {
 }
 
 export function serialize(prng: Pcg32): SerializedPrng {
-	return `pcg32_${u64ToHex(prng.state)}_${u64ToHex(prng.increment)}`
+	return `pcg32-${u64ToHex(prng.state)}-${u64ToHex(prng.increment)}`
 }
 
 export function getRandomPcg32(): Pcg32 {
@@ -112,7 +112,7 @@ export function getNumWordsPerElement(type: NumberTypeName, wordSize: WordSize):
 	return Math.ceil(globalThis[`${type}Array`].BYTES_PER_ELEMENT / wordSize)
 }
 
-export function isPositiveIntString(value: string) {
+export function isNonNegativeIntString(value: string) {
 	return /^\d+$/.test(value)
 }
 
@@ -124,10 +124,10 @@ export class InvalidSeedError extends Error {
 export function seedToPrng(seed: string | null): Prng {
 	if (seed == null) return CryptoPrng.instance
 
-	if (isPositiveIntString(seed)) {
+	if (isNonNegativeIntString(seed)) {
 		return new Pcg32(BigInt(seed))
-	} else if (/^pcg32_[0-9a-f]{16}_[0-9a-f]{16}$/.test(seed)) {
-		const [state, increment] = seed.split('_').slice(1).map((x) => BigInt(`0x${x}`))
+	} else if (/^pcg32-[0-9a-f]{16}-[0-9a-f]{16}$/.test(seed)) {
+		const [state, increment] = seed.split('-').slice(1).map((x) => BigInt(`0x${x}`))
 		if ((increment & 1n) === 0n) {
 			throw new InvalidSeedError(`Invalid increment: 0x${u64ToHex(increment)}. \`increment\` must be odd`)
 		}

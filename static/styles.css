@@ -44,7 +44,9 @@ pre {
 }
 
 a {
-	--color: LinkText;
+	/* --color: LinkText; */
+	/* https://issuetracker.google.com/issues/40772439 `LinkText` is broken in Chrome :( */
+	--color: #9e9eff;
 	color: var(--color);
 
 	&:hover {

@@ -1,7 +1,8 @@
 import { isRedirectStatus, STATUS_CODE, STATUS_TEXT, type StatusCode } from '@std/http/status'
 import { isNumberTypeShortName, numberTypeShortNames } from '../numberTypes.ts'
 import { listFmt, MAX_COUNT, numFmt } from '../config.ts'
-import { getRandomPcg32, getResults, InvalidSeedError, isPositiveIntString, type Results, serialize } from '../core.ts'
+import type { Results } from '../core.ts'
+import { getRandomPcg32, getResults, InvalidSeedError, isNonNegativeIntString, serialize } from '../core.ts'
 import { DOM_EXCEPTION_NAME, isDomException } from '@li/is-dom-exception'
 import { accepts } from '@std/http/negotiation'
 import { populateLayout, populateTemplate } from '../render.ts'
@@ -34,7 +35,7 @@ export const numbers = jsonOrHtml((req: Request): Response => {
 	if (_count == null) {
 		return err(STATUS_CODE.BadRequest, '`count` is required')
 	}
-	if (!isPositiveIntString(_count)) {
+	if (!isNonNegativeIntString(_count)) {
 		return err(STATUS_CODE.BadRequest, '`count` must be a positive integer')
 	}
 	const count = Number(_count)
