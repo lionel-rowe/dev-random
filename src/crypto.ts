@@ -1,7 +1,13 @@
-export class CryptoPrng {
-	// singleton
+/** Singleton instance of `CryptoPrng` */
+export let cryptoPrng: CryptoPrng
+
+/** Wraps `crypto.getRandomValues` to avoid throwing on large inputs. */
+export class CryptoPrng implements Pick<Crypto, 'getRandomValues'> {
 	private constructor() {}
-	static readonly instance = new CryptoPrng()
+
+	static {
+		cryptoPrng = new CryptoPrng()
+	}
 
 	getRandomValues<T extends ReturnType<Crypto['getRandomValues']>>(array: T): T {
 		// 0x10_000 == 65_536.

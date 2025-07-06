@@ -2,7 +2,7 @@ import { Pcg32 } from '@std/random/_pcg32.ts'
 import type { RandomValueGenerator } from '@std/random/get_random_values_seeded.ts'
 import { nextFloat64 } from '@std/random/next_float_64.ts'
 import { NumberTypeName, numberTypeNameMap, NumberTypeShortName, NumericTypeOf } from './numberTypes.ts'
-import { CryptoPrng } from './crypto.ts'
+import { CryptoPrng, cryptoPrng } from './crypto.ts'
 import { unreachable } from '@std/assert/unreachable'
 
 type WordSize = 1 | 2 | 4 | 8 | 16
@@ -122,7 +122,7 @@ export class InvalidSeedError extends Error {
 
 /** @throws {InvalidSeedError} */
 export function seedToPrng(seed: string | null): Prng {
-	if (seed == null) return CryptoPrng.instance
+	if (seed == null) return cryptoPrng
 
 	if (isNonNegativeIntString(seed)) {
 		return new Pcg32(BigInt(seed))

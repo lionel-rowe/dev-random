@@ -23,7 +23,7 @@
 		"marked-smartypants": "npm:marked-smartypants@^1.1.9",
 		"mustache": "npm:mustache@^4.2.0",
 		"prismjs": "npm:prismjs@^1.30.0",
-		"string-dedent": "https://esm.sh/string-dedent@3.0.1"
+		"string-dedent": "npm:string-dedent@^3.0.2"
 	},
 	"fmt": {
 		"semiColons": false,
