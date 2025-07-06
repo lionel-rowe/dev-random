@@ -1,4 +1,4 @@
-import { isRedirectStatus, STATUS_CODE, STATUS_TEXT, type StatusCode } from '@std/http/status'
+import { isRedirectStatus, STATUS_CODE } from '@std/http/status'
 import { isNumberTypeShortName, numberTypeShortNames } from '../numberTypes.ts'
 import { listFmt, MAX_COUNT, numFmt } from '../config.ts'
 import type { Results } from '../core.ts'
@@ -8,6 +8,7 @@ import { accepts } from '@std/http/negotiation'
 import { populateLayout, populateTemplate } from '../render.ts'
 import { marked } from '../marked.ts'
 import { contentType } from '@std/media-types/content-type'
+import { err } from './err.ts'
 
 export const numbers = jsonOrHtml((req: Request): Response => {
 	const url = new URL(req.url)
@@ -59,14 +60,6 @@ export const numbers = jsonOrHtml((req: Request): Response => {
 
 	return Response.json(results)
 })
-
-export function err(status: StatusCode, message?: string) {
-	const statusText = STATUS_TEXT[status]
-	return Response.json({
-		code: status,
-		error: [STATUS_TEXT[status], message].filter(Boolean).join(': '),
-	}, { status, statusText })
-}
 
 function jsonOrHtml(fn: (req: Request) => Response | Promise<Response>) {
 	return async (req: Request): Promise<Response> => {

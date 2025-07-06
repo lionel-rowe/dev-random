@@ -15,6 +15,7 @@
 		"@std/media-types": "jsr:@std/media-types@^1.1.0",
 		"@std/path": "jsr:@std/path@^1.0.9",
 		"@std/random/": "https://raw.githubusercontent.com/denoland/std/50a28e8d/random/",
+		"@std/text": "jsr:@std/text@^1.0.15",
 		"@types/mustache": "npm:@types/mustache@^4.2.6",
 		"@types/prismjs": "npm:@types/prismjs@^1.26.5",
 		"marked": "npm:marked@^15.0.12",
